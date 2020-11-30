@@ -15,6 +15,26 @@ public class ColorRGB<b> {
         this.setAll(brightness, r, g, b);
     }
 
+    public void setR(int r) {
+        if (r < 0 || r > 255) {
+            throw new IllegalArgumentException("out of range R \n" +
+                    "");
+        }
+        this.R = r;
+    }
+    public void setG(int g) {
+        if (g < 0 || g > 255) {
+            throw new IllegalArgumentException("out of range G \n");
+        }
+        this.G = g;
+    }
+    public void setB(int b) {
+        if (b < 0 || b > 255) {
+            throw new IllegalArgumentException("out of range B \n");
+        }
+        this.B = b;
+    }
+
     public int getR() {
         return R;
     }
@@ -27,24 +47,25 @@ public class ColorRGB<b> {
     public double getBrightness() {
         return brightness;
     }
-    public Map<String,Integer> getRGB() {
-        return Map.of("red", R, "green", G, "blue", B);
+    public Map<Integer,Integer> getRGB() {
+        return Map.of(0, R, 1, G, 2, B);
+    }
+    public void setByChannel(int channel, int intensity) {
+        if (channel == 0) {
+            setR(intensity);
+        }
+        else if (channel == 1) {
+            setG(intensity);
+        }
+        else if (channel == 2) {
+            setB(intensity);
+        }
     }
 
     public void setRGB(int r, int g, int b) {
-        this.R = r;
-        this.G = g;
-        this.B = b;
-        if (r < 0 || r > 255) {
-            throw new IllegalArgumentException("out of range R \n" +
-                    "");
-        }
-        if (g < 0 || g > 255) {
-            throw new IllegalArgumentException("out of range G \n");
-        }
-        if (b < 0 || b > 255) {
-            throw new IllegalArgumentException("out of range B \n");
-        }
+        this.setR(r);
+        this.setG(g);
+        this.setB(b);
     }
     public void setBrightness(double brightness)  throws IllegalArgumentException{
         if (brightness >= 0 && brightness <= 1) {
@@ -68,6 +89,8 @@ public class ColorRGB<b> {
         setRGB(r, g, b);
         setBrightness(brightness);
     }
+
+
 
     public ColorRGB buildColor() {
         builtColor.setAll(this.brightness, (int)(R * brightness), (int)(G * brightness), (int)(B * brightness));

@@ -1,5 +1,8 @@
 package LED;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class LED {
     ColorRGB LEDColor;
     private SerialComm LEDComm;
@@ -45,7 +48,61 @@ public class LED {
             }
         }
     }
+    public void fluctuateColorRandomly() {
+        Map<Integer,Integer> startRGB = LEDColor.getRGB();
+        int[] changedRGB = new int[3];
+        int changedColor = 0;
+        int currentColor;
+        while (true) {
+            for (int i = 0; i < 3; i++) {
+                currentColor = (int) LEDColor.getRGB().get(i) ;
+                if(((int) (Math.random() * 2)) == 1) {
+                    changedColor = 1 + currentColor;
+                }
+                else {
+                    changedColor = -1 + currentColor;
+                }
+                if ((changedColor <= startRGB.get(i)) && changedColor >= 0) {
+                    changedRGB[i] = changedColor;
+                }
+                else if (changedColor >= startRGB.get(i)) {
+                    changedRGB[i] = startRGB.get(i);
+                }
+            }
+            LEDColor.setRGB(changedRGB[0], changedRGB[1], changedRGB[2]);
+            this.pushChanges();
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public void fluctuateColorWavy() {
+        while (true) {
+            for (int i = 0; i < 3; i++) {
+                int lowingColor =(int) LEDColor.getRGB().get(i);
+                int uppingColor = 0;
 
+                    while (lowingColor != 0 && uppingColor < 255) {
+                        lowingColor -= 1;
+                        uppingColor += 1;
+                        LEDColor.setByChannel(i, lowingColor);
+                        if (i == 2) {
+                            LEDColor.setByChannel(0, uppingColor);
+                        } else {
+                            LEDColor.setByChannel(i + 1, uppingColor);
+                        }
+                        pushChanges();
+                        try {
+                            Thread.sleep(20);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
     @Override
     public String toString() {
         return "Color settings: \n" + this.LEDColor.toString() +
@@ -53,10 +110,12 @@ public class LED {
     }
 
     public static void main(String[] args) {
-        LED led3 = new LED(0.5,200,0,10);
+        LED led3 = new LED(1.0,200,0,0);
         System.out.println(led3.LEDColor.toString());
         //led3.pushChanges();
-        led3.fluctuateBrightness(1);
+        //led3.fluctuateBrightness(1);
+        //led3.fluctuateColorRandomly();
+        led3.fluctuateColorWavy();
 
     }
 }

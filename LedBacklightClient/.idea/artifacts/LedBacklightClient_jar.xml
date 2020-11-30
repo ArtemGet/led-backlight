@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="LedBacklightClient:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/LedBacklightClient_jar</output-path>
+    <root id="archive" name="LedBacklightClient.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="LedBacklightClient" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/scijava/native-lib-loader/2.3.3/native-lib-loader-2.3.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/io/github/java-native/jssc/2.9.2/jssc-2.9.2.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

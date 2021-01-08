@@ -1,121 +1,93 @@
 package LED;
-
-import java.util.HashMap;
-import java.util.Map;
+import Serial.SerialComm;
 
 public class LED {
-    ColorRGB LEDColor;
-    private SerialComm LEDComm;
-    public LED() {
-        new LED(0,0,0);
-    }
-    public LED(int r, int g, int b) {
-        new LED(1.0,r ,g ,b);
-    }
+    private ColorRGB color;
+    private ColorRGB builtColor = new ColorRGB();
+    private double brightness;
+
     public LED(double brightness, int r, int g, int b) {
-        this.LEDComm = SerialComm.getSerialBacklight();
-        this.LEDColor = new ColorRGB(brightness,r ,g ,b);
-    }
-    protected void finalize() {
-        LEDComm.close();
+        this.color = new ColorRGB(r, g, b);
+        setBrightness(brightness);
     }
 
-    public void pushChanges() {
-        LEDComm.pushRGB(LEDColor.buildColor());
+    private ColorRGB buildColor(double brightness) {
+        this.builtColor.setRGB((int) (color.getR() * brightness)
+                , (int) (color.getG() * brightness)
+                , (int) (color.getB() * brightness));
+        return builtColor;
     }
+
+    private ColorRGB buildColor() {
+        return buildColor(brightness);
+    }
+//    Add LEDModes class
+    public void setBrightness(double brightness) throws IllegalArgumentException {
+        if (brightness >= 0 && brightness <= 1) {
+            this.brightness = brightness;
+        } else if (brightness < 0) {
+            this.brightness = 0;
+            throw new IllegalArgumentException("Attention! brightness is under 0% \n" +
+                    "brightness set on 0%\n" +
+                    "Attention! this option will turn LEDs off\n");
+        } else if (brightness > 1) {
+            this.brightness = 1;
+            throw new IllegalArgumentException("Attention! brightness exceeds 100%\n" +
+                    "brightness set on 100%");
+        }
+    }
+
     public void fluctuateBrightness(int frequencyPerMin) {
-        double start = this.LEDColor.getBrightness();
-        while (true) {
-            for (double i = 0; i < start; i = i + frequencyPerMin * start/600.0) {
-                try {
-                    Thread.sleep(20);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        SerialComm.startScanning();
+        while (SerialComm.isRunning) {
+            for (double i = 0; i < brightness
+                    ; i = i + frequencyPerMin * brightness / 600.0) {
+                if (!SerialComm.pushIfRunning(this.buildColor(i))) {
+                    System.exit(0);
                 }
-                this.LEDColor.setBrightness(i);
-                //System.out.println(led3.LEDColor.toString());
-                this.pushChanges();
             }
-            for (double i = start; i > 0; i = i - frequencyPerMin * start/600.0 ) {
-                try {
-                    Thread.sleep(20);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            for (double i = brightness; i > 0
+                    ; i = i - frequencyPerMin * brightness / 600.0) {
+                if (!SerialComm.pushIfRunning(this.buildColor(i))) {
+                    System.exit(0);
                 }
-                this.LEDColor.setBrightness(i);
-                //System.out.println(this.LEDColor.toString());
-                this.pushChanges();
             }
         }
     }
-    public void fluctuateColorRandomly() {
-        Map<Integer,Integer> startRGB = LEDColor.getRGB();
-        int[] changedRGB = new int[3];
-        int changedColor = 0;
-        int currentColor;
-        while (true) {
-            for (int i = 0; i < 3; i++) {
-                currentColor = (int) LEDColor.getRGB().get(i) ;
-                if(((int) (Math.random() * 2)) == 1) {
-                    changedColor = 1 + currentColor;
-                }
-                else {
-                    changedColor = -1 + currentColor;
-                }
-                if ((changedColor <= startRGB.get(i)) && changedColor >= 0) {
-                    changedRGB[i] = changedColor;
-                }
-                else if (changedColor >= startRGB.get(i)) {
-                    changedRGB[i] = startRGB.get(i);
-                }
-            }
-            LEDColor.setRGB(changedRGB[0], changedRGB[1], changedRGB[2]);
-            this.pushChanges();
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    public void fluctuateColorWavy() {
-        while (true) {
-            for (int i = 0; i < 3; i++) {
-                int lowingColor =(int) LEDColor.getRGB().get(i);
-                int uppingColor = 0;
 
-                    while (lowingColor != 0 && uppingColor < 255) {
-                        lowingColor -= 1;
-                        uppingColor += 1;
-                        LEDColor.setByChannel(i, lowingColor);
-                        if (i == 2) {
-                            LEDColor.setByChannel(0, uppingColor);
-                        } else {
-                            LEDColor.setByChannel(i + 1, uppingColor);
-                        }
-                        pushChanges();
-                        try {
-                            Thread.sleep(20);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        }
+//    public void fluctuateColorWavy() {
+//        SerialComm.startScanning();
+//        color.setRGB(121,121,0);
+//        buildColor();
+//        while (SerialComm.isRunning) {
+//            for (int i = 1; i <= 3; i++) {
+//                if (i == 1) {
+//                    for (int j = 0; j < 120; j++) {
+//                        builtColor.setR(builtColor.getR() - 1);
+//                        builtColor.setB(j);
+//                        SerialComm.pushIfRunning(builtColor);
+//                    }
+//                } else if (i == 2) {
+//                    for (int j = 0; j < 120; j++) {
+//                        builtColor.setG(builtColor.getB() - 1);
+//                        builtColor.setR(j);
+//                        SerialComm.pushIfRunning(builtColor);
+//                    }
+//                }else if (i == 3) {
+//                    for (int j = 0; j < 120; j++) {
+//                        builtColor.setB(builtColor.getR() - 1);
+//                        builtColor.setG(j);
+//                        SerialComm.pushIfRunning(builtColor);
+//                    }
+//                }
+//            }
+//        }
+//    }
+
     @Override
     public String toString() {
-        return "Color settings: \n" + this.LEDColor.toString() +
-                "Serial.settings: \n" + this.LEDComm.toString();
-    }
-
-    public static void main(String[] args) {
-        LED led3 = new LED(1.0,200,0,0);
-        System.out.println(led3.LEDColor.toString());
-        //led3.pushChanges();
-        //led3.fluctuateBrightness(1);
-        //led3.fluctuateColorRandomly();
-        led3.fluctuateColorWavy();
-
+        return "Color settings: \n" + this.color + "\n"
+                + "Brightness: " + this.brightness + "\n"
+                + "BuitColor would be: \n" + this.buildColor();
     }
 }

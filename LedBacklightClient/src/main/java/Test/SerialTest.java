@@ -1,5 +1,4 @@
 package Test;
-
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
@@ -13,15 +12,14 @@ public class SerialTest {
     static SerialPort serialPort;
     static Scanner request = new Scanner(System.in);
     static int a;
-    static int R,G,B;
-    static final  Map<String, Double> brightness = Map.ofEntries(
-            Map.entry("darkest",0.2),
-            Map.entry("dark",0.4),
-            Map.entry("mid",0.6),
-            Map.entry("bright",0.8),
-            Map.entry("brightest",1.0)
+    static int R, G, B;
+    static final Map<String, Double> brightness = Map.ofEntries(
+            Map.entry("darkest", 0.2),
+            Map.entry("dark", 0.4),
+            Map.entry("mid", 0.6),
+            Map.entry("bright", 0.8),
+            Map.entry("brightest", 1.0)
     );
-
 
     private static void initPort() {
         try {
@@ -29,7 +27,7 @@ public class SerialTest {
             serialPort = new SerialPort(PORT);
             serialPort.openPort();
             Thread.sleep(2000);
-            serialPort.setParams(9600,8,1,0, true, true);
+            serialPort.setParams(9600, 8, 1, 0, true, true);
         } catch (ArrayIndexOutOfBoundsException | SerialPortException e) {
             System.out.println("connect LedBackLighter");
             System.exit(1);
@@ -37,15 +35,12 @@ public class SerialTest {
             ex.printStackTrace();
         }
     }
+
     private static void pushColorChanges() {
         try {
             serialPort.writeInt(R);
-
             serialPort.writeInt(G);
-
             serialPort.writeInt(B);
-
-
 
             System.out.println(R + " " + G + " " + B);
             System.out.println("changes pushed");
@@ -80,15 +75,17 @@ public class SerialTest {
         System.out.println("4)Exit");
         a = request.nextInt();
     }
+
     private static void writeColorsActions() {
         System.out.println("Select colors from 0 to 255 (RGB)");
     }
+
     private static void writeBrightnessActions() {
         System.out.println("Enter brightness level:");
         System.out.println("darkest/dark/mid/bright/brightest");
     }
 
-    private static void setColor(String intensivety,int R, int G, int B) {
+    private static void setColor(String intensivety, int R, int G, int B) {
         try {
             double coefficient = brightness.get(intensivety);
             SerialTest.R = (int) (R * coefficient);
@@ -100,6 +97,7 @@ public class SerialTest {
             System.out.println("----------------------------------");
         }
     }
+
     private static void setColor(int R, int G, int B) {
         setColor("mid", R, G, B);
     }

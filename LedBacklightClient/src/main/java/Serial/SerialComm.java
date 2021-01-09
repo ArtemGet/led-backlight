@@ -10,24 +10,21 @@ import java.nio.file.Path;
 import java.util.Scanner;
 
 public class SerialComm {
-    private static SerialComm serialBacklight;
     public volatile static boolean isRunning = true;
-
     private static String PORT;
     private static SerialPort serialPort;
 
     private SerialComm() {
-        initPort();
     }
-
-    public static SerialComm connect() {
-        if (serialBacklight == null) {
-            serialBacklight = new SerialComm();
+    public static void connect() throws SerialPortException {
+        if (serialPort == null) {
+            initPort();
+        } else if (serialPort.isOpened()) {
+            throw new SerialPortException(PORT,"connect()",SerialPortException.TYPE_PORT_ALREADY_OPENED);
         }
-        return serialBacklight;
     }
 
-    private static void initPort() {
+    private static void initPort() throws SerialPortException {
         try {
             if (SerialPortList.getPortNames().length == 0) {
                 throw new SerialPortException("", "initPort()", SerialPortException.TYPE_PORT_NOT_FOUND);
@@ -37,10 +34,7 @@ public class SerialComm {
             serialPort.openPort();
             Thread.sleep(2000);
             serialPort.setParams(9600, 8, 1, 0, true, true);
-        } catch (SerialPortException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (InterruptedException ex) {
+        }  catch (InterruptedException ex) {
             ex.printStackTrace();
         }
     }
@@ -101,6 +95,7 @@ public class SerialComm {
     public static void startScanning() {
         new Thread(() -> {
             Scanner scanner = new Scanner(System.in);
+            System.out.println("Type 'false' to stop program");
             while (isRunning) {
                 isRunning = scanner.nextBoolean();
             }

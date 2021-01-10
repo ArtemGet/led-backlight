@@ -28,12 +28,13 @@ public class SerialComm {
         try {
             if (SerialPortList.getPortNames().length == 0) {
                 throw new SerialPortException("", "initPort()", SerialPortException.TYPE_PORT_NOT_FOUND);
+            } else {
+                PORT = SerialPortList.getPortNames()[0];
+                serialPort = new SerialPort(PORT);
+                serialPort.openPort();
+                Thread.sleep(2000);
+                serialPort.setParams(9600, 8, 1, 0, true, true);
             }
-            PORT = SerialPortList.getPortNames()[0];
-            serialPort = new SerialPort(PORT);
-            serialPort.openPort();
-            Thread.sleep(2000);
-            serialPort.setParams(9600, 8, 1, 0, true, true);
         }  catch (InterruptedException ex) {
             ex.printStackTrace();
         }
@@ -77,7 +78,7 @@ public class SerialComm {
                 });
     }
 
-    public static boolean pushIfRunning(ColorRGB colorRGB) {
+    public static void pushIfRunning(ColorRGB colorRGB) {
         SerialComm.push(colorRGB);
         try {
             Thread.sleep(20);
@@ -87,9 +88,9 @@ public class SerialComm {
         if (!isRunning) {
             SerialComm.push(ColorRGB.getDefaults());
             SerialComm.close();
-            return false;
+            System.exit(0);
         }
-        return true;
+
     }
 
     public static void startScanning() {

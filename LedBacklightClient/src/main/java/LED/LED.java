@@ -42,15 +42,11 @@ public class LED {
         while (SerialComm.isRunning) {
             for (double i = 0; i < brightness
                     ; i = i + frequencyPerMin * brightness / 600.0) {
-                if (!SerialComm.pushIfRunning(this.buildColor(i))) {
-                    System.exit(0);
-                }
+                SerialComm.pushIfRunning(this.buildColor(i));
             }
             for (double i = brightness; i > 0
                     ; i = i - frequencyPerMin * brightness / 600.0) {
-                if (!SerialComm.pushIfRunning(this.buildColor(i))) {
-                    System.exit(0);
-                }
+                SerialComm.pushIfRunning(this.buildColor(i));
             }
         }
     }

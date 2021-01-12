@@ -1,20 +1,14 @@
 package Test;
 
-import LED.LED;
+import LED.LEDBuilder;
 import Serial.SerialComm;
 import jssc.SerialPortException;
 
-import java.util.*;
-
 public class Start {
     public static void main(String[] args) {
-        LED led = new LED(1.0, 0, 100, 0);
+        LEDBuilder led = new LEDBuilder(1.0, 0, 100, 0);
         System.out.println(led);
-        try {
-            SerialComm.connect();
-        } catch (SerialPortException e) {
-            e.printStackTrace();
-        }
+        SerialComm.connect();
         led.fluctuateBrightness(3);
     }
 }

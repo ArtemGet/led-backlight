@@ -4,23 +4,30 @@ import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class SerialComm {
-    public volatile static boolean isRunning = true;
+    private volatile static boolean isRunning = true;
     private static String PORT;
     private static SerialPort serialPort;
 
     private SerialComm() {
     }
-    public static void connect() throws SerialPortException {
-        if (serialPort == null) {
-            initPort();
-        } else if (serialPort.isOpened()) {
-            throw new SerialPortException(PORT,"connect()",SerialPortException.TYPE_PORT_ALREADY_OPENED);
+    public static void connect() {
+        try {
+            if (serialPort == null) {
+                initPort();
+            } else if (serialPort.isOpened()) {
+                throw new SerialPortException(PORT,"connect()",SerialPortException.TYPE_PORT_ALREADY_OPENED);
+            }
+        } catch (SerialPortException e) {
+            e.printStackTrace();
+            System.exit(-1);
         }
     }
 
@@ -59,23 +66,26 @@ public class SerialComm {
         }
     }
 
-    public static void push() throws IOException {
-        Files.lines(Path.of("src/main/resources/CurrentMode"))
-                .forEach(line -> {
-                    int[] RGB = collectRGB(line);
-                    for (int channel : RGB) {
+    public static void push() {
+        try {
+            Files.lines(Path.of("src/main/resources/CurrentMode"))
+                    .forEach(line -> {
+                        for (String channel : line.split(" ")) {
+                            try {
+                                serialPort.writeInt(Integer.parseInt(channel));
+                            } catch (SerialPortException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         try {
-                            serialPort.writeInt(channel);
-                        } catch (SerialPortException e) {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                    }
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                });
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void pushIfRunning(ColorRGB colorRGB) {
@@ -102,14 +112,8 @@ public class SerialComm {
             }
         }).start();
     }
-
-    public static int[] collectRGB(String line) {
-        String[] inColor = line.split(" ");
-        int[] outColor = new int[3];
-        for (int i = 0; i < 3; i++) {
-            outColor[i] = Integer.parseInt(inColor[i]);
-        }
-        return outColor;
+    public static boolean isRunning() {
+        return isRunning;
     }
 
 }

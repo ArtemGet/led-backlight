@@ -1,11 +1,9 @@
 package LED;
 
-import java.util.Map;
-
 public class ColorRGB {
-    private int R;
-    private int G;
-    private int B;
+    private int r;
+    private int g;
+    private int b;
 
     public ColorRGB() {
     }
@@ -19,39 +17,39 @@ public class ColorRGB {
             throw new IllegalArgumentException("out of range R \n" +
                     "");
         }
-        this.R = r;
+        this.r = r;
     }
 
     public void setG(int g) {
         if (g < 0 || g > 255) {
             throw new IllegalArgumentException("out of range G \n");
         }
-        this.G = g;
+        this.g = g;
     }
 
     public void setB(int b) {
         if (b < 0 || b > 255) {
             throw new IllegalArgumentException("out of range B \n");
         }
-        this.B = b;
+        this.b = b;
     }
 
     public void setRGB(int r, int g, int b) {
-        this.setR(r);
-        this.setG(g);
-        this.setB(b);
+        setR(r);
+        setG(g);
+        setB(b);
     }
 
     public int getR() {
-        return R;
+        return r;
     }
 
     public int getG() {
-        return G;
+        return g;
     }
 
     public int getB() {
-        return B;
+        return b;
     }
 
     public static ColorRGB getDefaults() {
@@ -60,8 +58,8 @@ public class ColorRGB {
 
     @Override
     public String toString() {
-        return "Red - " + R + "\n" +
-                "Green - " + G + "\n" +
-                "Blue - " + B;
+        return "Red - " + r + "\n" +
+                "Green - " + g + "\n" +
+                "Blue - " + b;
     }
 }
